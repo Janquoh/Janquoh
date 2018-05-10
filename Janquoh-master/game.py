@@ -5,7 +5,7 @@ class Player(object):
         self.rect = pygame.Rect(x, y, 25, 25)
         self.velocityX = 0
         self.velocityY = 0
-        self.velocityMax = 5
+        self.velocityMax = 10
         self.acceletarion = 0.2
         self.DeAcceletarion = 0.1
 
