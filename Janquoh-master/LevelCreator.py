@@ -98,7 +98,7 @@ def Export(maps):
         elif map.state == 2:
             map.state = 'a'
         elif map.state == 5:
-            map.state = 'L'+str(map.text)
+            map.state = str(map.text)
 
     z = -1
     for y in range(len(file)):
@@ -131,7 +131,7 @@ def EventHandler(current, maps, tools, buttons, text):
             exit(0)
     return current
 
-def Draw(maps, tools, buttons, text):
+def Draw(maps, tools, buttons, text, current):
     for map in maps:
         if map.state == 2:
             pygame.draw.rect(screen, (100, 100, 100), map.rect, 0)
@@ -142,10 +142,24 @@ def Draw(maps, tools, buttons, text):
         pygame.draw.rect(screen, (100, 100, 100), button.rect, 1)
 
     for tool in tools:
-        if tool.id == 2:
+        if tool.id == 1:
+            screen.blit(pygame.image.load("Assets/eraser.png"), (tool.rect))
+        elif tool.id == 2:
             screen.blit(pygame.image.load("Assets/wall.png"), (tool.rect))
+        elif tool.id == 3:
+            screen.blit(pygame.image.load("Assets/border.png"), (tool.rect))
+        elif tool.id == 4:
+            screen.blit(pygame.image.load("Assets/delete.png"), (tool.rect))
+        elif tool.id == 5:
+            screen.blit(pygame.image.load("Assets/wip.png"), (tool.rect))
+        else:
+            screen.blit(pygame.image.load("Assets/blank.png"), (tool.rect))
 
         pygame.draw.rect(screen, (100, 100, 100), tool.rect, 1)
+
+    for tool in tools:
+        if tool.id == current:
+            pygame.draw.rect(screen, (200, 200, 0), tool.rect, 4)
 
     surface = text.font.render(text.text, True, text.color)
     screen.blit(surface, (text.rect.x + 5, text.rect.y + 5))
@@ -194,7 +208,7 @@ def Main():
     while True:
         screen.fill((0, 0, 0))
 
-        Draw(maps, tools, buttons, text)
+        Draw(maps, tools, buttons, text, current)
 
         current = EventHandler(current, maps, tools, buttons, text)
 
@@ -203,7 +217,7 @@ def Main():
 
 if __name__ == '__main__':
     pygame.init()
-    
+
     environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (30, 25)
     pygame.display.set_caption("Game")
     screen = pygame.display.set_mode((1300, 700))
