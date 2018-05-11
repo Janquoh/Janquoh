@@ -3,7 +3,7 @@ import pygame
 """
 # state 1 = Eraser
 # state 2 = Wall
-
+# state 3 = Door
 
 clipboard
 """
