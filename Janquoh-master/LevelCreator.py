@@ -3,7 +3,7 @@ import pygame
 """
 # state 1 = Eraser
 # state 2 = Wall
-# state 3 = Door
+
 
 clipboard
 """
@@ -26,10 +26,18 @@ class Button(object):
         self.rect = pygame.Rect(x, y, 200, 50)
 
 def Export(maps):
-    file = []
-    for x in range(37):
-        file += ["" + str(x+1) + ""]
+    file = [[" " for x in range(38)] for y in range(26)]
 
+    z = -1
+    for y in range(len(file)):
+        for x in range(len(file[0])):
+            z += 1
+            file[y][x] = maps[z].state
+
+
+    for y in range(len(file)):
+        for x in range(len(file[0])):
+            print("printing :", y, ".", x, "- {", file[y][x], "}")
 
     print(file)
 
@@ -87,7 +95,8 @@ def Main():
 
         for tool in tools:
             if tool.state == 2:
-                screen.blit(pygame.image.load("Assets/wall.png"), (tool.rect))
+                sprite = pygame.image.load("Assets/wall.png")
+                screen.blit(sprite, (tool.rect))
 
             pygame.draw.rect(screen, (100, 100, 100), tool.rect, 1)
 
@@ -101,7 +110,7 @@ def Main():
                 if hover and mouse[0] > map.rect.x and mouse[0] < map.rect.x+25 and mouse[1] > map.rect.y and mouse[1] < map.rect.y+25:
                     if current != 0:
                         map.state = current
-                    print("tile:", map.id, " /// state:",map.state)
+                    print("tiler:", map.id, " /// state:",map.state, " /// rest:", map.id % 38, " /// times:",map.id // 38)
 
             for tool in tools:
                 if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and mouse[0] > tool.rect.x and mouse[0] < tool.rect.x+50 and mouse[1] > tool.rect.y and mouse[1] < tool.rect.y+50:
