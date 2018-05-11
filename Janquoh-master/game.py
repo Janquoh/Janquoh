@@ -5,7 +5,7 @@ class Player(object):
         self.rect = pygame.Rect(x, y, 25, 25)
         self.velocityX = 0
         self.velocityY = 0
-        self.velocityMax = 10
+        self.velocityMax = 5
         self.acceletarion = 0.2
         self.DeAcceletarion = 0.1
 
@@ -104,7 +104,7 @@ def LoadLevel(level):
 def LoadLevelNew(level):
 
     walls = []
-    x = y = 0
+    x = y = 25
 
     for row in level:
         for col in row:
@@ -115,5 +115,8 @@ def LoadLevelNew(level):
                 Wall((x, y), walls, 1, 0, 0)
             x += 25
         y += 25
-        x = 0
+        x = 25
     return walls
+
+def LASODAOD():
+    print(123123)
