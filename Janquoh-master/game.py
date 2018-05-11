@@ -5,7 +5,7 @@ class Player(object):
         self.rect = pygame.Rect(x, y, 25, 25)
         self.velocityX = 0
         self.velocityY = 0
-        self.velocityMax = 10
+        self.velocityMax = 5
         self.acceletarion = 0.2
         self.DeAcceletarion = 0.1
 
@@ -63,6 +63,16 @@ class Player(object):
                     self.rect.top = wall.rect.bottom
                     self.velocityY = 0
 
+class Bullet(object):
+    def __init__(self, playerPos):
+        self.point=playerPos
+        #self.direction=mousePosition
+        self.rect=pygame.Rect(self.point[0], self.point[1], 5,15)
+        self.image=pygame.image.load("Assets/sprite.png")
+        #self.speed=moveSpeed
+        self.surface=pygame.Surface((5,15))
+        self.surface.fill((123,12,123))
+        
 class Wall(object):
     def __init__(self, pos, list, type, level, side):
         list.append(self)
@@ -74,46 +84,17 @@ class Wall(object):
 def LoadLevel(level):
 
     walls = []
-    x = y = 0
-
-    for row in level:
-        for col in row:
-            if col == "a":
-                Wall((x, y), walls, 1, 0, 0)
-            if col == "b":
-                Wall((x, y), walls, 2, levels.Lvl2(), 2)
-            if col == "c":
-                Wall((x, y), walls, 2, levels.Lvl1(), 4)
-            if col == "d":
-                Wall((x, y), walls, 2, levels.Lvl3(), 3)
-            if col == "e":
-                Wall((x, y), walls, 2, levels.Lvl2(), 1)
-            if col == "f":
-                Wall((x, y), walls, 2, levels.Lvl4(), 4)
-            if col == "g":
-                Wall((x, y), walls, 2, levels.Lvl3(), 2)
-            if col == "h":
-                Wall((x, y), walls, 2, levels.Lvl1(), 1)
-            if col == "i":
-                Wall((x, y), walls, 2, levels.Lvl4(), 3)
-            x += 25
-        y += 25
-        x = 0
-    return walls
-
-def LoadLevelNew(level):
-
-    walls = []
-    x = y = 0
+    x = y = 25
 
     for row in level:
         for col in row:
             print(col)
             if col == "a":
                 Wall((x, y), walls, 1, 0, 0)
-            if col == "d1adasdasd":
-                Wall((x, y), walls, 1, 0, 0)
+            if col[0] == "1" or col[0] == "2" or col[0] == "3" or col[0] == "4":
+                Wall((x, y), walls, 2, getattr(levels, 'Lvl'+str(col[1:]))(), col[0])
+
             x += 25
         y += 25
-        x = 0
+        x = 25
     return walls

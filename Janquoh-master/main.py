@@ -4,7 +4,6 @@ def Main():
     running = True
 
     player = game.Player(500,350)
-    #walls = game.LoadLevel(levels.Lvl1())
     walls = game.LoadLevel(levels.Lvl1())
 
     while running:
@@ -13,8 +12,6 @@ def Main():
         player.Controls(walls)
 
         pygame.draw.rect(screen, (250, 0, 0), player.rect, 0)
-
-
 
         for wall in walls:
             if wall.type == 1:
