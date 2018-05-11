@@ -2,7 +2,7 @@
 Just a game being created by Eduardo and Tomás :)
 
 # Updates
-###0.0.1
+### 0.0.1
 
 -> Basic game logic
 
