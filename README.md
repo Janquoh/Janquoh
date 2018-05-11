@@ -2,7 +2,7 @@
 Just a game being created by Eduardo and Tomás :)
 
 # Updates
-0.0.1
+###0.0.1
 
 -> Basic game logic
 
@@ -14,7 +14,7 @@ Just a game being created by Eduardo and Tomás :)
 -> Basic maps and map transition
 
 -> REALLY basic assets
-
+#
 
 # To Do
 LevelCreator - Tomás
