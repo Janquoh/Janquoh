@@ -92,10 +92,13 @@ class Button(object):
 def Export(maps):
     file = [[" " for x in range(38)] for y in range(26)]
 
-    for x in range(len(maps)):
-        if maps[x].state == 2:
-            maps[x].state = 'a'
-        else: maps[x].state = ' '
+    for map in maps:
+        if map.state == 1:
+            map.state = ' '
+        elif map.state == 2:
+            map.state = 'a'
+        elif map.state == 5:
+            map.state = 'L'+str(map.text)
 
     z = -1
     for y in range(len(file)):
