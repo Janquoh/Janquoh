@@ -63,6 +63,15 @@ class Player(object):
                     self.rect.top = wall.rect.bottom
                     self.velocityY = 0
 
+class Bullet(object):
+    def __init__(self, playerPos):
+        self.point=playerPos
+        #self.direction=mousePosition
+        self.rect=pygame.Rect(self.point[0], self.point[1], 5,15)
+        self.image=pygame.image.load("Assets/sprite.png")
+        #self.speed=moveSpeed
+        self.surface=pygame.Surface((5,15))
+        self.surface.fill((123,12,123))
 class Wall(object):
     def __init__(self, pos, list, type, level, side):
         list.append(self)
