@@ -19,6 +19,7 @@ class Creator(object):
         self.text = ""
 
     def Action(self,current, event, text):
+        #if event.type == 4 or event.type == 5 or event.type == 6:
         if event.type != pygame.KEYDOWN and event.type != pygame.KEYUP:
             if pygame.mouse.get_pressed()[0] and self.rect.collidepoint(event.pos):
                 if current == 2 or current == 1 or current == 5:
@@ -33,35 +34,34 @@ class Tool(object):
         self.id = id
 
     def Click(self, current, event, maps):
-        if event.type != pygame.KEYDOWN and event.type != pygame.KEYUP:
-            if self.rect.collidepoint(event.pos):
-                if self.id == 1 or self.id == 2:
-                    current = self.id
-                if self.id == 3:
-                    for x in range(38):
-                        maps[x].state = 2
-                        maps[x+950].state = 2
-                    for x in range(26):
-                        maps[x*38].state = 2
-                        maps[x * 38-1].state = 2
-                if self.id == 4:
-                    for map in maps:
-                        map.state = 1
-                if self.id == 5:
-                    current = self.id
+        if self.rect.collidepoint(event.pos):
+            if self.id == 1 or self.id == 2:
+                current = self.id
+            if self.id == 3:
+                for x in range(38):
+                    maps[x].state = 2
+                    maps[x+950].state = 2
+                for x in range(26):
+                    maps[x*38].state = 2
+                    maps[x * 38-1].state = 2
+            if self.id == 4:
+                for map in maps:
+                    map.state = 1
+            if self.id == 5:
+                current = self.id
 
-                print("clicking in tool:", self.id, " /// state:", self.id)
-            return current, maps
+            print("clicking in tool:", self.id, " /// state:", self.id)
+        return current, maps
 
 class TextBox(object):
-    def __init__(self):
+    def __init__(self, rect):
         self.color1 = pygame.Color(200,200,200)
         self.color2 = pygame.Color(50,150,250)
         self.font = pygame.font.Font(None, 25)
         self.color = self.color1
         self.active = False
         self.state = 0
-        self.rect = pygame.Rect(1050, 550, 200, 30)
+        self.rect = pygame.Rect(rect)
         self.text = ""
 
     def Write(self, event):
@@ -81,15 +81,28 @@ class TextBox(object):
                 self.text += event.unicode
 
 class Button(object):
-    def __init__(self, x, y, id):
-        self.rect = pygame.Rect(x, y, 200, 50)
+    def __init__(self, rect, id):
+        self.rect = pygame.Rect(rect)
+        self.id = id
 
-    def Click(self, event, maps):
+    def Click(self, event, maps, position):
         if event.type != pygame.KEYDOWN and event.type != pygame.KEYUP:
             if self.rect.collidepoint(event.pos):
-                Export(maps)
+                if self.id == 1:
+                    Export(maps)
+                elif self.id == 2 and position[1]!=4:
+                    position[1] += 1
+                elif self.id == 3 and position[1]!=0:
+                    position[1] -= 1
+                elif self.id == 4 and position[0]!=0:
+                    position[0] -= 1
+                elif self.id == 5 and position[0]!=4:
+                    position[0] += 1
+        print(position)
+        return position
 
 def Export(maps):
+    ## WIP
     file = [[" " for x in range(38)] for y in range(26)]
 
     for map in maps:
@@ -112,26 +125,27 @@ def Export(maps):
 
     print(file)
 
-def EventHandler(current, maps, tools, buttons, text):
+def EventHandler(current, maps, tools, buttons, text, name, position):
     for event in pygame.event.get():
 
         text.Write(event)
+        name.Write(event)
 
         for map in maps:
             map.Action(current, event, text.text)
 
-        if pygame.mouse.get_pressed()[0]:
+        if pygame.mouse.get_pressed()[0] and event.type != pygame.KEYDOWN and event.type != pygame.KEYUP:
             for tool in tools:
                 current, maps = tool.Click(current, event, maps)
 
             for button in buttons:
-                button.Click(event, maps)
+                position = button.Click(event, maps, position)
 
         if event.type == pygame.QUIT:
             exit(0)
-    return current
+    return current, position
 
-def Draw(maps, tools, buttons, text, current):
+def Draw(maps, tools, buttons, text, current, name):
     for map in maps:
         if map.state == 2:
             pygame.draw.rect(screen, (100, 100, 100), map.rect, 0)
@@ -139,7 +153,11 @@ def Draw(maps, tools, buttons, text, current):
         pygame.draw.rect(screen, (200, 200, 200), map.rect, 1)
 
     for button in buttons:
-        pygame.draw.rect(screen, (100, 100, 100), button.rect, 1)
+
+        if button.id == 2 or button.id == 3 or button.id == 4 or button.id == 5:
+            pygame.draw.rect(screen, (200, 200, 0), button.rect, 1)
+        else:
+            pygame.draw.rect(screen, (100, 100, 100), button.rect, 1)
 
     for tool in tools:
         if tool.id == 1:
@@ -165,11 +183,15 @@ def Draw(maps, tools, buttons, text, current):
     screen.blit(surface, (text.rect.x + 5, text.rect.y + 5))
     pygame.draw.rect(screen, text.color, text.rect, 1)
 
+    surface = name.font.render(name.text, True, name.color)
+    screen.blit(surface, (name.rect.x + 5, name.rect.y + 5))
+    pygame.draw.rect(screen, name.color, name.rect, 1)
+
 def Create(maps, tools):
     id = 0
     if tools == []:
         x = 1000
-        y = 25
+        y = 75
         for row in range(8):
             for col in range(4):
                 id += 1
@@ -193,24 +215,46 @@ def Create(maps, tools):
 
 def Main():
     current = 0
+    position = [2, 2]
 
-    maps = []
+    print(position)
+    array = \
+    [(23, 24, 9, 10, 11),
+    (22, 8, 1, 2, 12),
+    (21, 7, 0, 3, 13),
+    (20, 6, 5, 4, 14),
+    (19, 18, 17, 16, 15)]
+
+    World = []
+
+    for x in range(25):
+        map = []
+        map = Create(map, 0)
+        World += [map]
+
     tools = []
     buttons = []
 
-    buttons += [Button(1050, 475, 1)]
+    buttons += [Button((1050, 480, 200, 50), 1)]
+    buttons += [Button((25, 5, 950, 15), 4)]
+    buttons += [Button((25, 680, 950,15), 5)]
 
-    maps = Create(maps, 0)
+    buttons += [Button((5, 25, 15, 650), 3)]
+    buttons += [Button((980, 25, 15, 650), 2)]
+
     tools = Create(0, tools)
 
-    text = TextBox()
+
+    text = TextBox((1050, 550, 200, 30))
+    name = TextBox((1050, 25, 200, 30))
 
     while True:
         screen.fill((0, 0, 0))
 
-        Draw(maps, tools, buttons, text, current)
+        name.text = str(position) + " - level - " + str(array[position[0]][position[1]])
 
-        current = EventHandler(current, maps, tools, buttons, text)
+        Draw(World[array[position[0]][position[1]]], tools, buttons, text, current, name)
+        current, position = EventHandler(current, World[array[position[0]][position[1]]], tools, buttons, text, name, position)
 
         pygame.display.update()
         clock.tick(60)
