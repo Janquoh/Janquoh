@@ -103,7 +103,7 @@ class Player(pygame.sprite.Sprite):
 class Shell(pygame.sprite.Sprite):
     def __init__(self, player):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("bullet.png")
+        self.image = pygame.image.load("assets/bullet.png")
         self.image.convert()
         self.rect = self.image.get_rect()
         self.image.set_colorkey(self.image.get_at((1, 1)))
