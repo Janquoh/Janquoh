@@ -7,4 +7,6 @@
 
 # game
 + upgraded player logic
-+ bullets twords the mouse point
++ bullets class
++ shot bullets from player twords the mouse
++ player sprite
