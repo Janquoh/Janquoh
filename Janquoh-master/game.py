@@ -4,7 +4,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.charge = 10
-        self.imageMaster = pygame.image.load("player.png")
+        self.imageMaster = pygame.image.load("assets/player.png")
         self.imageMaster.convert()
         self.rect = self.imageMaster.get_rect()
         self.rect.center = (320, 240)
@@ -174,4 +174,22 @@ def LoadLevel(level):
             x += 25
         y += 25
         x = 0
+    return walls
+
+def LoadLevel2(level):
+
+    walls = []
+    x = y = 25
+
+    for row in level:
+        for col in row:
+            print(col)
+            if col == "a":
+                Wall((x, y), walls, 1, 0, 0)
+            if col[0] == "1" or col[0] == "2" or col[0] == "3" or col[0] == "4":
+                Wall((x, y), walls, 2, getattr(levels, 'Lvl'+str(col[1:]))(), col[0])
+
+            x += 25
+        y += 25
+        x = 25
     return walls
