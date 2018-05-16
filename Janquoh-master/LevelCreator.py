@@ -22,11 +22,17 @@ class Creator(object):
         #if event.type == 4 or event.type == 5 or event.type == 6:
         if event.type != pygame.KEYDOWN and event.type != pygame.KEYUP:
             if pygame.mouse.get_pressed()[0] and self.rect.collidepoint(event.pos):
-                if current == 2 or current == 1 or current == 5:
+                if current == 2 or current == 1:
                     self.state = current
-                if current == 5:
-                    self.text = text
-                print("tiler:", self.id, " /// state:", self.state)
+                for x in range(34):
+                    if current == 5 and self.id == x+3 or self.id == x+953:
+                        self.state = current
+                        self.text = text
+                for x in range(22):
+                    if current == 5 and self.id == (x+3)*38 - 37 or self.id == (x+3) * 38:
+                        self.state = current
+                        self.text = text
+                print("tiler:", self.id, " /// state:" , self.state)
 
 class Tool(object):
     def __init__(self, x, y, id):
@@ -98,7 +104,6 @@ class Button(object):
                     position[0] -= 1
                 elif self.id == 5 and position[0]!=4:
                     position[0] += 1
-        print(position)
         return position
 
 def Export(maps):
@@ -149,6 +154,23 @@ def Draw(maps, tools, buttons, text, current, name):
     for map in maps:
         if map.state == 2:
             pygame.draw.rect(screen, (100, 100, 100), map.rect, 0)
+        elif map.state == 5:
+            font = pygame.font.SysFont("Arial", 22)
+            for x in range(34):
+                if map.id == x+3:
+                    surface = font.render("↑", True, pygame.Color(200,100,25))
+                    screen.blit(surface, (map.rect.x + 7, map.rect.y - 2))
+                if map.id == x+953:
+                    surface = font.render("↓", True, pygame.Color(200, 100, 25))
+                    screen.blit(surface, (map.rect.x + 7, map.rect.y - 2))
+            for x in range(22):
+                if map.id == (x+3)*38:
+                    surface = font.render("→", True, pygame.Color(200, 100, 25))
+                    screen.blit(surface, (map.rect.x, map.rect.y - 2))
+                if map.id == (x+3)*38 - 37:
+                    surface = font.render("←", True, pygame.Color(200,100,25))
+                    screen.blit(surface, (map.rect.x, map.rect.y - 2))
+
 
         pygame.draw.rect(screen, (200, 200, 200), map.rect, 1)
 
@@ -249,6 +271,8 @@ def Main():
     name = TextBox((1050, 25, 200, 30))
 
     while True:
+
+
         screen.fill((0, 0, 0))
 
         name.text = str(position) + " - level - " + str(array[position[0]][position[1]])
