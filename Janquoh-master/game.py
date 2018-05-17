@@ -3,7 +3,7 @@ import pygame, math, levels
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.charge = 10
+        self.bulletSpeed= 10
         self.imageMaster = pygame.image.load("assets/player.png")
         self.imageMaster.convert()
         self.rect = self.imageMaster.get_rect()
@@ -17,12 +17,11 @@ class Player(pygame.sprite.Sprite):
         self.acceletarion = 0.2
         self.deAcceletarion = 0.1
         self.bullets = []
+        self.cooldown = 0
 
         self.hitBox = pygame.Rect(self.rect.x, self.rect.y, 25, 25)
 
     def Controls(self, walls):
-        #self.rect = pygame.Rect(self.rect.x, self.rect.y, 25, 25)
-        #self.rect.size[1] = 25
         def move_single_axis(x, y, walls):
 
             self.hitBox.x += x
@@ -43,12 +42,13 @@ class Player(pygame.sprite.Sprite):
                         self.hitBox.top = wall.rect.bottom
                         self.velocityY = 0
 
-        if pygame.mouse.get_pressed()[0]:
+        if pygame.mouse.get_pressed()[0] and self.cooldown == 0:
+            self.cooldown = 20
             shell = Shell(self.rect)
             shell.x = self.rect.centerx
             shell.y = self.rect.centery
             shell.dir = self.dir
-            shell.speed = self.charge
+            shell.speed = self.bulletSpeed
             self.bullets += [shell]
 
         key = pygame.key.get_pressed()
@@ -97,8 +97,10 @@ class Player(pygame.sprite.Sprite):
         self.dir = (radians * 180 / math.pi) + 180
         self.distance = math.sqrt((dx * dx) + (dy * dy))
 
-        #self.rect.x, self.rect.y = self.hitBox.x, self.hitBox.y
         self.rect.center = self.hitBox.center
+
+        if self.cooldown > 0:
+            self.cooldown -= 1
 
 class Shell(pygame.sprite.Sprite):
     def __init__(self, player):
@@ -109,6 +111,7 @@ class Shell(pygame.sprite.Sprite):
         self.image.set_colorkey(self.image.get_at((1, 1)))
         self.speed = 20
         self.dir = 0
+        self.demage = 1
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
         rel_x, rel_y = mouse_x - player.x, mouse_y - player.y
@@ -129,14 +132,13 @@ class Shell(pygame.sprite.Sprite):
 
 
     # DELETE
-    """
+
     def checkKeys(self, screen):
         if self.x > screen.get_width() or self.x < 0 or self.y > screen.get_height() or self.y < 0:
             self.__del__()
 
     def __del__(self):
         del self
-    """
 
 class Wall(object):
     def __init__(self, pos, list, type, level, side):
@@ -145,6 +147,14 @@ class Wall(object):
         self.type = type
         self.level = level
         self.side = side
+
+class Enemy(object):
+    def __init__(self):
+        self.imageMaster = pygame.image.load("assets/enemy.png")
+        self.imageMaster.convert()
+        self.rect = self.imageMaster.get_rect()
+        self.rect.center = (400, 240)
+        self.life = 3
 
 def LoadLevel(level):
 
