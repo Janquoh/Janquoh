@@ -18,14 +18,18 @@ class Creator(object):
         self.state = 1
         self.text = ""
 
-    def Action(self,current, event, text):
-        #if event.type == 4 or event.type == 5 or event.type == 6:
+    def Action(self,current, event, text, maps, position):
         if event.type != pygame.KEYDOWN and event.type != pygame.KEYUP:
             if pygame.mouse.get_pressed()[0] and self.rect.collidepoint(event.pos):
                 if current == 2 or current == 1:
                     self.state = current
                 for x in range(34):
-                    if current == 5 and self.id == x+3 or self.id == x+953:
+                    if current == 5 and self.id == x+3:
+                        maps[array[position[0]][position[1]]+1][x + 952].state = current
+                        print(0)
+                        self.state = current
+                        self.text = text
+                    if current == 5 and self.id == x + 953:
                         self.state = current
                         self.text = text
                 for x in range(22):
@@ -39,19 +43,19 @@ class Tool(object):
         self.rect = pygame.Rect(x, y, 50, 50)
         self.id = id
 
-    def Click(self, current, event, maps):
+    def Click(self, current, event, maps, position):
         if self.rect.collidepoint(event.pos):
             if self.id == 1 or self.id == 2:
                 current = self.id
             if self.id == 3:
                 for x in range(38):
-                    maps[x].state = 2
-                    maps[x+950].state = 2
+                    maps[array[position[0]][position[1]]][x].state = 2
+                    maps[array[position[0]][position[1]]][x+950].state = 2
                 for x in range(26):
-                    maps[x*38].state = 2
-                    maps[x * 38-1].state = 2
+                    maps[array[position[0]][position[1]]][x*38].state = 2
+                    maps[array[position[0]][position[1]]][x * 38-1].state = 2
             if self.id == 4:
-                for map in maps:
+                for map in maps[array[position[0]][position[1]]]:
                     map.state = 1
             if self.id == 5:
                 current = self.id
@@ -93,7 +97,7 @@ class Button(object):
 
     def Click(self, event, maps, position):
         if event.type != pygame.KEYDOWN and event.type != pygame.KEYUP:
-            if self.rect.collidepoint(event.pos):
+            if self.rect.collidepoint(event.pos) and event.type == pygame.MOUSEBUTTONDOWN:
                 if self.id == 1:
                     Export(maps)
                 elif self.id == 2 and position[1]!=4:
@@ -136,12 +140,12 @@ def EventHandler(current, maps, tools, buttons, text, name, position):
         text.Write(event)
         name.Write(event)
 
-        for map in maps:
-            map.Action(current, event, text.text)
+        for map in maps[array[position[0]][position[1]]]:
+            map.Action(current, event, text.text, maps, position)
 
         if pygame.mouse.get_pressed()[0] and event.type != pygame.KEYDOWN and event.type != pygame.KEYUP:
             for tool in tools:
-                current, maps = tool.Click(current, event, maps)
+                current, maps = tool.Click(current, event, maps, position)
 
             for button in buttons:
                 position = button.Click(event, maps, position)
@@ -150,8 +154,8 @@ def EventHandler(current, maps, tools, buttons, text, name, position):
             exit(0)
     return current, position
 
-def Draw(maps, tools, buttons, text, current, name):
-    for map in maps:
+def Draw(maps, tools, buttons, text, current, name, position):
+    for map in maps[array[position[0]][position[1]]]:
         if map.state == 2:
             pygame.draw.rect(screen, (100, 100, 100), map.rect, 0)
         elif map.state == 5:
@@ -191,7 +195,7 @@ def Draw(maps, tools, buttons, text, current, name):
         elif tool.id == 4:
             screen.blit(pygame.image.load("Assets/delete.png"), (tool.rect))
         elif tool.id == 5:
-            screen.blit(pygame.image.load("Assets/wip.png"), (tool.rect))
+            screen.blit(pygame.image.load("Assets/door.png"), (tool.rect))
         else:
             screen.blit(pygame.image.load("Assets/blank.png"), (tool.rect))
 
@@ -240,12 +244,6 @@ def Main():
     position = [2, 2]
 
     print(position)
-    array = \
-    [(23, 24, 9, 10, 11),
-    (22, 8, 1, 2, 12),
-    (21, 7, 0, 3, 13),
-    (20, 6, 5, 4, 14),
-    (19, 18, 17, 16, 15)]
 
     World = []
 
@@ -277,14 +275,21 @@ def Main():
 
         name.text = str(position) + " - level - " + str(array[position[0]][position[1]])
 
-        Draw(World[array[position[0]][position[1]]], tools, buttons, text, current, name)
-        current, position = EventHandler(current, World[array[position[0]][position[1]]], tools, buttons, text, name, position)
+        Draw(World, tools, buttons, text, current, name, position)
+        current, position = EventHandler(current, World, tools, buttons, text, name, position)
 
         pygame.display.update()
         clock.tick(60)
 
 if __name__ == '__main__':
     pygame.init()
+
+    array = \
+    [(23, 24, 9, 10, 11),
+    (22, 8, 1, 2, 12),
+    (21, 7, 0, 3, 13),
+    (20, 6, 5, 4, 14),
+    (19, 18, 17, 16, 15)]
 
     environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (30, 25)
     pygame.display.set_caption("Game")
