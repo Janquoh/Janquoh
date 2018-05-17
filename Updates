@@ -11,3 +11,6 @@
 + bullets class
 + shot bullets from player twords the mouse
 + player sprite
++ enemy class
++ bullets die against the walls
++ bullets can kill enemies
