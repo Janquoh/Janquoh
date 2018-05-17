@@ -17,6 +17,10 @@ class Player(pygame.sprite.Sprite):
         self.acceletarion = 0.2
         self.deAcceletarion = 0.1
         self.bullets = []
+        self.EDuration = 0
+        self.ECoolDown = 0
+        self.QDuration = 0
+        self.QCoolDown = 0
         self.cooldown = 0
 
         self.hitBox = pygame.Rect(self.rect.x, self.rect.y, 25, 25)
@@ -53,26 +57,33 @@ class Player(pygame.sprite.Sprite):
 
         key = pygame.key.get_pressed()
 
-        if key[pygame.K_UP] and key[pygame.K_RIGHT]:
+        if key[pygame.K_w] and key[pygame.K_d]:
             if self.velocityY > -self.velocityMax*0.78: self.velocityY -= self.acceletarion
             if self.velocityX < self.velocityMax: self.velocityX += self.acceletarion
-        elif key[pygame.K_RIGHT] and key[pygame.K_DOWN]:
+        elif key[pygame.K_d] and key[pygame.K_s]:
             if self.velocityX < self.velocityMax: self.velocityX += self.acceletarion
             if self.velocityY < self.velocityMax: self.velocityY += self.acceletarion
-        elif key[pygame.K_DOWN] and key[pygame.K_LEFT]:
+        elif key[pygame.K_s] and key[pygame.K_a]:
             if self.velocityY < self.velocityMax: self.velocityY += self.acceletarion
             if self.velocityX > -self.velocityMax*0.78: self.velocityX -= self.acceletarion
-        elif key[pygame.K_UP] and key[pygame.K_LEFT]:
+        elif key[pygame.K_w] and key[pygame.K_a]:
             if self.velocityY > -self.velocityMax*0.78: self.velocityY -= self.acceletarion
             if self.velocityX > -self.velocityMax*0.78: self.velocityX -= self.acceletarion
-        elif key[pygame.K_UP]:
+        elif key[pygame.K_w]:
             if self.velocityY > -self.velocityMax*0.78: self.velocityY -= self.acceletarion
-        elif key[pygame.K_RIGHT]:
+        elif key[pygame.K_d]:
             if self.velocityX < self.velocityMax: self.velocityX += self.acceletarion
-        elif key[pygame.K_DOWN]:
+        elif key[pygame.K_s]:
             if self.velocityY < self.velocityMax: self.velocityY += self.acceletarion
-        elif key[pygame.K_LEFT]:
+        elif key[pygame.K_a]:
             if self.velocityX > -self.velocityMax*0.78: self.velocityX -= self.acceletarion
+        if key[pygame.K_q] and self.QCoolDown==0:
+            self.velocityMax=8
+            self.acceletarion=0.8
+            self.QCoolDown=480
+            self.QDuration=300
+            print(self.velocityMax)
+            print(self.acceletarion)
 
         if self.velocityX > 0: self.velocityX -= self.deAcceletarion
         if self.velocityX < 0: self.velocityX += self.deAcceletarion
@@ -101,6 +112,13 @@ class Player(pygame.sprite.Sprite):
 
         if self.cooldown > 0:
             self.cooldown -= 1
+        if self.QDuration>0:
+            self.QDuration-=1
+        else:
+            self.acceletarion=0.2
+            self.velocityMax=5
+            if self.QCoolDown>0:
+                self.QCoolDown-=1
 
 class Shell(pygame.sprite.Sprite):
     def __init__(self, player):
