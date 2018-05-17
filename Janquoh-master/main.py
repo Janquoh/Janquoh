@@ -5,6 +5,8 @@ def Main():
 
     player = game.Player()
     walls = game.LoadLevel(Lvl1())
+    enemyes = []
+    enemyes += [game.Enemy()]
 
     while True:
         screen.fill((0, 0, 0))
@@ -13,6 +15,17 @@ def Main():
 
         player.Update()
         for bullet in player.bullets:
+            for wall in walls:
+                if wall.rect.colliderect(bullet.rect):
+                    player.bullets.remove(bullet)
+                    break
+            for enemy in enemyes:
+                if bullet.rect.colliderect(enemy.rect):
+                    player.bullets.remove(bullet)
+                    enemy.life -= bullet.demage
+                    if enemy.life <= 0:
+                        enemyes.remove(enemy)
+                    break
             bullet.Update()
 
         for wall in walls:
@@ -36,6 +49,8 @@ def Main():
                     walls = game.LoadLevel(wall.level)
 
         screen.blit(player.image, player.rect)
+        for enemy in enemyes:
+            screen.blit(enemy.imageMaster, enemy.rect)
 
         for bullet in player.bullets:
             screen.blit(bullet.image, bullet.rect)
