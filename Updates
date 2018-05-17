@@ -5,6 +5,10 @@
 + tool to next level
 ~ logic being the program Level Creator
 + you can now build multiple levels at once
++ better multiple level building
++ you can view the entire map in the top right cornor and also navigate through there
+~ doors are easier to use
+- export levels (for now)
 
 # game
 + upgraded player logic
@@ -14,3 +18,4 @@
 + enemy class
 + bullets die against the walls
 + bullets can kill enemies
++ bullets have cooldown
