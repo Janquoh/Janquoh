@@ -1,21 +1,20 @@
 import pygame, game, GUI
-from levels import Lvl1
+from levels import Lvl0
 
 def Main():
 
     player = game.Player()
-    walls = game.LoadLevel(Lvl1())
+    walls = game.LoadLevel2(Lvl0())
     graphicInterface=GUI.characterPortrait()
     heart1 = GUI.heartContainers(43)
     heart2 = GUI.heartContainers(70)
     heart3 = GUI.heartContainers(97)
-    skill1 = GUI.skillMap(screen,60,player.QCoolDown,"assets/GoFast.png")
-    skill2 = GUI.skillMap(screen,116,player.ECoolDown,"assets/Scare_Chase.png")
-    enemyes = []
-    enemyes += [game.Enemy()]
+
+    enemies = []
+    enemies += [game.Enemy()]
 
     while True:
-        screen.fill((0, 0, 0))
+        screen.fill((0, 0, 200))
 
         player.Controls(walls)
 
@@ -25,12 +24,12 @@ def Main():
                 if wall.rect.colliderect(bullet.rect):
                     player.bullets.remove(bullet)
                     break
-            for enemy in enemyes:
+            for enemy in enemies:
                 if bullet.rect.colliderect(enemy.rect):
                     player.bullets.remove(bullet)
                     enemy.life -= bullet.demage
                     if enemy.life <= 0:
-                        enemyes.remove(enemy)
+                        enemies.remove(enemy)
                     break
             bullet.Update()
 
@@ -40,30 +39,29 @@ def Main():
             if wall.type == 2:
                 pygame.draw.rect(screen, (100, 100, 100), wall.rect)
                 if wall.rect.colliderect(player.hitBox):
-                    if wall.side == 1:
+                    if wall.side == '1':
                         player.rect.y = 625
                         player.hitBox.y = 625
-                    if wall.side == 2:
-                        player.rect.x = 150
-                        player.hitBox.x = 150
-                    if wall.side == 3:
+                    if wall.side == '4':
+                        player.rect.x = 125
+                        player.hitBox.x = 125
+                    if wall.side == '2':
                         player.rect.y = 50
                         player.hitBox.y = 50
-                    if wall.side == 4:
-                        player.rect.x = 1025
-                        player.hitBox.x = 1025
-                    walls = game.LoadLevel(wall.level)
+                    if wall.side == '3':
+                        player.rect.x = 1000
+                        player.hitBox.x = 1000
+                    walls = game.LoadLevel2(wall.level)
+
+        pygame.draw.rect(screen, (2, 250, 200), pygame.Rect(300, 85, player.abilCool, 5))
 
         screen.blit(player.image, player.rect)
         screen.blit(graphicInterface.image, graphicInterface.rect)
         screen.blit(heart1.image, heart1.rect)
         screen.blit(heart2.image, heart2.rect)
         screen.blit(heart3.image, heart3.rect)
-        screen.blit(skill1.image, skill1.rect)
-        pygame.draw.rect(screen, (2, 25, 255), pygame.Rect(0, 85, 50 / player.QProgress, 5))
-        screen.blit(skill2.image, skill2.rect)
-        pygame.draw.rect(screen, (255, 25, 2), pygame.Rect(0, 141, 50 / player.EProgress, 5))
-        for enemy in enemyes:
+
+        for enemy in enemies:
             screen.blit(enemy.imageMaster, enemy.rect)
 
         for bullet in player.bullets:
@@ -81,7 +79,7 @@ if __name__ == '__main__':
     from os import environ
     environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (150, 30)
     pygame.display.set_caption("Game")
-    screen = pygame.display.set_mode((1200, 900))
+    screen = pygame.display.set_mode((1100, 700))
 
     clock = pygame.time.Clock()
     Main()
