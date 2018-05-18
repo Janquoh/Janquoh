@@ -8,7 +8,7 @@ from os import environ
 # state 4 = Clean Field
 # state 5 = Make Door
 # state 6 = Point
-# state 7 = Export ~
+# state 7 = Export
 
 clipboard
 """
@@ -18,9 +18,9 @@ class Creator(object):
         self.id = id
         self.rect = pygame.Rect(x, y, 25, 25)
         self.state = 1
-        self.text = ""
+        self.dir = 0
 
-    def Action(self,current, event, text, maps, position):
+    def Action(self,current, event, maps, position):
         if event.type != pygame.KEYDOWN and event.type != pygame.KEYUP:
             if pygame.mouse.get_pressed()[0] and self.rect.collidepoint(event.pos):
                 if current == 2 or current == 1:
@@ -28,22 +28,25 @@ class Creator(object):
                 for x in range(34):
                     if current == 5 and self.id == x+3:
                         maps[array[position[0]-1][position[1]]][x + 952].state = current
+                        maps[array[position[0] - 1][position[1]]][x + 952].dir = 2
                         self.state = current
-                        self.text = text
+                        self.dir = 1
                     if current == 5 and self.id == x + 953:
                         maps[array[position[0]+1][position[1]]][x - 986].state = current
+                        maps[array[position[0] + 1][position[1]]][x - 986].dir = 1
                         self.state = current
-                        self.text = text #77 115 153
+                        self.dir = 2
                 for x in range(22):
                     if current == 5 and self.id == (x+3)*38 - 37:
                         maps[array[position[0]][position[1] - 1]][(x + 3) * 38 - 1].state = current
-                        #print(maps[array[position[0] - 1][position[1]]][(x + 3) * 38 - 1].state)
+                        maps[array[position[0]][position[1] - 1]][(x + 3) * 38 - 1].dir = 4
                         self.state = current
-                        self.text = text
+                        self.dir = 3
                     if current == 5 and self.id == (x + 3) * 38:
                         maps[array[position[0]][position[1]+1]][(x + 3) * 38 - 38].state = current
+                        maps[array[position[0]][position[1] + 1]][(x + 3) * 38 - 38].dir = 3
                         self.state = current
-                        self.text = text
+                        self.dir = 4
                 print("tiler:", self.id, " /// state:" , self.state)
 
 class Tool(object):
@@ -51,7 +54,7 @@ class Tool(object):
         self.rect = pygame.Rect(x, y, 50, 50)
         self.id = id
 
-    def Click(self, current, event, maps, position, miniMap):
+    def Click(self, current, event, maps, position):
         if self.rect.collidepoint(event.pos):
             if self.id == 1 or self.id == 2:
                 current = self.id
@@ -74,36 +77,10 @@ class Tool(object):
                 current = self.id
             if self.id == 7:
                 print("WIP Exporting")
+                Export(maps)
 
             print("clicking in tool:", self.id, " /// state:", self.id)
         return current, maps
-
-class TextBox(object):
-    def __init__(self, rect):
-        self.color1 = pygame.Color(200,200,200)
-        self.color2 = pygame.Color(50,150,250)
-        self.font = pygame.font.Font(None, 25)
-        self.color = self.color1
-        self.active = False
-        self.state = 0
-        self.rect = pygame.Rect(rect)
-        self.text = ""
-
-    def Write(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.rect.collidepoint(event.pos):
-                self.active = True
-            else:
-                self.active = False
-            self.color = self.color2 if self.active else self.color1
-
-        if event.type == pygame.KEYDOWN and self.active:
-            if event.key == pygame.K_BACKSPACE:
-                self.text = self.text[:-1]
-                if event.key == pygame.K_LCTRL:
-                    self.text = ""
-            else:
-                self.text += event.unicode
 
 class Button(object):
     def __init__(self, rect, id):
@@ -128,7 +105,7 @@ class Button(object):
         return position
 
 class MiniMap(object):
-    def __init__(self,x,y, id):
+    def __init__(self, x, y, id):
         self.x, self.y = y, x
         self.rect = pygame.Rect(x * 36 + 1005, y * 24 + 20, 34, 22)
         self.state = 0
@@ -138,46 +115,105 @@ class MiniMap(object):
     def Click(self, event, position, maps, miniMap):
         if event.type != pygame.KEYDOWN and event.type != pygame.KEYUP:
             if self.rect.collidepoint(event.pos) and event.type == pygame.MOUSEBUTTONDOWN:
+
                 HardUpdate(position, maps[array[position[0]][position[1]]], miniMap)
                 position[0] = self.x
                 position[1] = self.y
+                print(array[position[0]][position[1]])
         return position
-"""
+
 def Export(maps):
     ## WIP
-    file = [[" " for x in range(38)] for y in range(26)]
+    f = open("levels.py", "w+")
 
+    for y in range(8):
+        for x in range(8):
+            f.write("def Lvl" + str(array[y][x]) + "():\n\treturn [")
+            z = 1
+            for map in maps[array[x][y]]:
+                if z == 1:
+                    f.write("[")
+                if map.state == 1:
+                    f.write("'"+" "+"'")
+                elif map.state == 2:
+                    f.write("'"+"a"+"'")
+                elif map.state == 5: #1 - UP /// 2 - DOWN /// 3 - LEFT /// 4 - RIGHT
+
+                    if map.dir == 1:
+                        f.write("'" + str(map.dir) + str(array[y][x-1]) + "'")
+                        print("lvl",array[y][x],"// 1 // up", array[y][x-1])
+                    if map.dir == 2:
+                        f.write("'" + str(map.dir) + str(array[y][x+1]) + "'")
+                        print("lvl", array[y][x], "// 2 // down", array[y][x+1])
+
+                    if map.dir == 3:
+                        f.write("'" + str(map.dir) + str(array[y-1][x]) + "'")
+                        print("lvl", array[y][x], "// 3 // left", array[y-1][x])
+
+                    if map.dir == 4:
+                        f.write("'" + str(map.dir) + str(array[y + 1][x]) + "'")
+                        print("lvl", array[y][x], "// 4 // right", array[y + 1][x])
+
+
+                if z < 38:
+                    f.write(",")
+                z += 1
+                if z > 38:
+                    z = 1
+                    f.write("]")
+                    if map.id < 980:
+                        f.write(",")
+            f.write("]\n\n")
+    return [[1,2],[3,4],]
+
+    """
     for map in maps:
         if map.state == 1:
             map.state = ' '
         elif map.state == 2:
             map.state = 'a'
         elif map.state == 5:
-            map.state = str(map.text)
+            map.state = str(map.dir)
+    """
+    f.close()
 
+    """
+      if map.dir == 1:
+          f.write("'"+str(map.dir)+str(array[x][y-1])+"'")
+      if map.dir == 3:
+          f.write("'"+str(map.dir)+str(array[x][y+1])+"'")
+          print("3333333 - E", array[x][y] , " - ",array[x][y - 1])
+      if map.dir == 2:
+          f.write("'"+str(map.dir)+str(array[x-1][y])+"'")
+          print("22222222", array[x + 1][y])
+      if map.dir == 4:
+          f.write("'"+str(map.dir)+str(array[x+1][y])+"'")
+          print("4444444 - D", array[x+1][y])
+      print(array[x][y])
+      """
+
+    """
     z = -1
     for y in range(len(file)):
         for x in range(len(file[0])):
             z += 1
             file[y][x] = maps[z].state
-
+    """
+    """
     for y in range(len(file)):
         for x in range(len(file[0])):
             print("printing :", y, ".", x, "- {", file[y][x], "}")
+    """
 
-    print(file)
-"""
-def EventHandler(current, maps, tools, buttons, text, position, miniMap):
+def EventHandler(current, maps, tools, buttons, position, miniMap):
     for event in pygame.event.get():
 
-        text.Write(event)
-
         for map in maps[array[position[0]][position[1]]]:
-            map.Action(current, event, text.text, maps, position)
+            map.Action(current, event, maps, position)
 
         if pygame.mouse.get_pressed()[0] and event.type != pygame.KEYDOWN and event.type != pygame.KEYUP:
             for tool in tools:
-                current, maps = tool.Click(current, event, maps, position, miniMap)
+                current, maps = tool.Click(current, event, maps, position)
 
             for button in buttons:
                 position = button.Click(event, maps, position, miniMap)
@@ -198,7 +234,7 @@ def HardUpdate(position, maps, miniMap):
     miniMap[array[position[1]][position[0]]].hard = hard
     return miniMap
 
-def Draw(maps, tools, buttons, text, current, position, miniMap):
+def Draw(maps, tools, buttons, current, position, miniMap):
     for map in maps[array[position[0]][position[1]]]:
         if map.state == 2:
             pygame.draw.rect(screen, (100, 100, 100), map.rect, 0)
@@ -260,10 +296,6 @@ def Draw(maps, tools, buttons, text, current, position, miniMap):
         for hard in mini.hard:
             pygame.draw.rect(screen, (200,200,200), hard, 0)
 
-    surface = text.font.render(text.text, True, text.color)
-    screen.blit(surface, (text.rect.x + 5, text.rect.y + 5))
-    pygame.draw.rect(screen, text.color, text.rect, 1)
-
 def Create(maps, tools):
     id = 0
     if tools == []:
@@ -304,7 +336,6 @@ def Main():
     tools = []
     buttons = []
 
-    #buttons += [Button((1050, 580, 200, 50), 1)]
     buttons += [Button((25, 5, 950, 15), 3)]
     buttons += [Button((25, 680, 950,15), 4)]
 
@@ -312,8 +343,6 @@ def Main():
     buttons += [Button((980, 25, 15, 650), 1)]
 
     tools = Create(0, tools)
-
-    text = TextBox((1050, 650, 200, 30))
 
     miniMap = []
 
@@ -325,8 +354,8 @@ def Main():
 
         screen.fill((0, 0, 0))
 
-        Draw(World, tools, buttons, text, current, position, miniMap)
-        current, position = EventHandler(current, World, tools, buttons, text, position, miniMap)
+        Draw(World, tools, buttons, current, position, miniMap)
+        current, position = EventHandler(current, World, tools, buttons, position, miniMap)
 
         pygame.display.update()
         clock.tick(60)
