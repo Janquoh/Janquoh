@@ -11,20 +11,18 @@ class Player(pygame.sprite.Sprite):
         self.dir = 0
         transColor = self.imageMaster.get_at((1, 1))
         self.imageMaster.set_colorkey(transColor)
+
         self.velocityX = 0
         self.velocityY = 0
         self.velocityMax = 5
         self.acceletarion = 0.2
         self.deAcceletarion = 0.1
+
         self.bullets = []
-        self.EDuration = 60
-        self.ECoolDown = 60
-        self.EProgress=(self.EDuration*1)/60
-        self.QDuration = 60
-        self.QCoolDown = 60
-        self.QProgress=(self.QDuration*1)/60
         self.cooldown = 0
         self.hitBox = pygame.Rect(self.rect.x, self.rect.y, 25, 25)
+        self.abil = 0
+        self.abilCool = 0
 
     def Controls(self, walls):
         def move_single_axis(x, y, walls):
@@ -78,19 +76,11 @@ class Player(pygame.sprite.Sprite):
             if self.velocityY < self.velocityMax: self.velocityY += self.acceletarion
         elif key[pygame.K_a]:
             if self.velocityX > -self.velocityMax*0.78: self.velocityX -= self.acceletarion
-         if key[pygame.K_q] and self.QCoolDown==60 and self.EDuration==60:
-            self.velocityMax=8
-            self.acceletarion=0.8
-            self.QCoolDown=540
-            self.QDuration=360
-            self.EDuration=300
-        if key[pygame.K_e] and self.ECoolDown==60 and self.QDuration==60:
-            self.velocityMax=2
-            self.shotSquat=60
-            self.demage=4
-            self.ECoolDown = 540
-            self.EDuration = 360
-            self.QDuration = 300
+
+        if key[pygame.K_v] and not self.abilCool:
+            self.velocityMax = 10
+            self.acceletarion = 0.4
+            self.abil = 300
 
         if self.velocityX > 0: self.velocityX -= self.deAcceletarion
         if self.velocityX < 0: self.velocityX += self.deAcceletarion
@@ -117,27 +107,15 @@ class Player(pygame.sprite.Sprite):
 
         self.rect.center = self.hitBox.center
 
-        if self.cooldown > 0:
-            self.cooldown -= 1
-        if self.QDuration > 60:
-            self.QDuration-=1
-        else:
-            self.acceletarion=0.2
-            self.velocityMax=5
-            if self.QCoolDown>60:
-                self.QCoolDown-=1
-                self.QProgress = (self.QCoolDown * 1) / 60
+        if self.abilCool > 0: self.abilCool -= 1
+        if self.abil > 0:
+            self.abil-=1
+            if self.abil == 0:
+                self.velocityMax = 5
+                self.acceletarion = 0.2
+                self.abilCool = 300
 
-        if self.EDuration > 60:
-            self.EDuration -= 1
-        else:
-            self.velocityMax = 5
-            self.damage=1
-            self.shotSquat=20
-            self.acceletarion=0.2
-            if self.ECoolDown > 60:
-                self.ECoolDown -= 1
-                self.EProgress = (self.ECoolDown * 1) / 60
+        if self.cooldown > 0: self.cooldown-=1
 
 class Shell(pygame.sprite.Sprite):
     def __init__(self, player):
@@ -178,8 +156,7 @@ class Shell(pygame.sprite.Sprite):
         del self
 
 class Wall(object):
-    def __init__(self, pos, list, type, level, side):
-        list.append(self)
+    def __init__(self, pos, type, level, side):
         self.rect = pygame.Rect(pos[0], pos[1], 25, 25)
         self.type = type
         self.level = level
@@ -231,10 +208,9 @@ def LoadLevel2(level):
     for row in level:
         for col in row:
             if col == "a":
-                Wall((x, y), walls, 1, 0, 0)
+                walls += [Wall((x, y), 1, 0, 0)]
             if col[0] == "1" or col[0] == "2" or col[0] == "3" or col[0] == "4":
-                Wall((x, y), walls, 2, getattr(levels, 'Lvl'+str(col[1:]))(), col[0])
-
+                walls += [Wall((x, y), 2, getattr(levels, 'Lvl'+str(col[1:]))(), col[0])]
             x += 25
         y += 25
         x = 100
