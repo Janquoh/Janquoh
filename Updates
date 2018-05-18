@@ -8,7 +8,7 @@
 + better multiple level building
 + you can view the entire map in the top right cornor and also navigate through there
 ~ doors are easier to use
-- export levels (for now)
++ export levels directly to levels.py
 
 # game
 + upgraded player logic
@@ -19,3 +19,7 @@
 + bullets die against the walls
 + bullets can kill enemies
 + bullets have cooldown
++ basic ability sistem with cooldown
+
+# GUI
++ starting this shit and stuff
